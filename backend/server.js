@@ -2,17 +2,22 @@ const app = require('./src/app');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const connectDB = async () => {
+let isConnected = false;
+
+async function connectDB() {
+  if (isConnected) return;
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    isConnected = true;
     console.log("✅ Connected to DB");
   } catch (error) {
     console.error("❌ DB Connection failed", error);
   }
-};
+}
 
-connectDB(); 
+connectDB();
 
-const serverless = require('serverless-http');
-
-module.exports = serverless(app); // ✅ Export Express as a handler
+module.exports = app; // Vercel will use this as the handler
